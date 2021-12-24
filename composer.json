@@ -1,0 +1,16 @@
+{
+    "name": "fark/la-joie-admin",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "LaJoie\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "farkmu45",
+            "email": "farukmicros@outlook.com"
+        }
+    ],
+    "require": {}
+}
