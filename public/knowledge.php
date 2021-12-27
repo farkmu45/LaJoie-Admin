@@ -12,6 +12,16 @@ Auth::guard();
 
 $knowledges = Knowledge::getAll();
 
+if ($_POST) {
+  $id = $_POST['categoryDeleteId'];
+
+  if (Knowledge::delete($id)) {
+    header('Location: knowledge.php');
+  } else {
+    # code...
+  }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -127,8 +137,12 @@ $knowledges = Knowledge::getAll();
                   <div class="article-details">
                     <div class="article-title" style="display: flex; align-items: center">
                       <h2 style="display: inline; margin-right: auto;"><a href="knowledgeList.php?category_id=<?= $knowledge['id'] ?>&name=<?= StringUtil::encodeUrl($knowledge['name']) ?>"><?= $knowledge['name'] ?></a></h2>
-                      <a href="knowledgeCategoryEdit.php?id=<?=$knowledge['id']?>" class="float-right"><i class="fas fa-edit"></i></a>
-                      <a href="test.php" class="float-right"><i class="fas fa-trash"></i></a>
+                      <a class="btn" href="knowledgeCategoryEdit.php?id=<?= $knowledge['id'] ?>" class="float-right"><i class="fas fa-edit"></i></a>
+                      <form method="post" style="display: inline;" class="float-right">
+                        <input type="hidden" name="categoryDeleteId" value="<?= $knowledge['id'] ?>">
+                        <button class="btn" style="color: #6777ef; background: #fff" href="#"><i class="fas fa-trash"></i></button>
+                      </form>
+
                     </div>
                   </div>
                 </article>

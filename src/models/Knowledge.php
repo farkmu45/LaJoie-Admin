@@ -51,6 +51,19 @@ class Knowledge extends Model
         }
     }
 
+    public static function delete($id)
+    {
+        try {
+            $query = "DELETE FROM knowledges WHERE id=:id";
+            $stmt = self::prepare($query);
+            $stmt->bindParam('id', $id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            print_r($e->getMessage());
+            die();
+        }
+    }
+
     public static function getKnowledgeById($id)
     {
         try {
