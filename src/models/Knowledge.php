@@ -22,6 +22,35 @@ class Knowledge extends Model
         }
     }
 
+    public static function get($id)
+    {
+        try {
+            $query = "SELECT * FROM knowledges WHERE id=:id";
+            $stmt = self::prepare($query);
+            $stmt->bindParam('id', $id);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            print_r($e->getMessage());
+            die();
+        }
+    }
+
+    public static function edit($id, $title, $picture)
+    {
+        try {
+            $query = "UPDATE knowledges SET name=:name, picture=:picture WHERE id=:id";
+            $stmt = self::prepare($query);
+            $stmt->bindParam('id', $id);
+            $stmt->bindParam('name', $title);
+            $stmt->bindParam('picture', $picture);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            print_r($e->getMessage());
+            die();
+        }
+    }
+
     public static function getKnowledgeById($id)
     {
         try {

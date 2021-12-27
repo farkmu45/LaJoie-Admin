@@ -1,18 +1,30 @@
 <?php
 
-require_once "../vendor/autoload.php";
+require_once '../vendor/autoload.php';
 
 use LaJoie\models\Knowledge;
-use LaJoie\utils\StringUtil;
 use LaJoie\modules\Auth;
 
 session_start();
 
 Auth::guard();
 
-$knowledges = Knowledge::getAll();
+$knowledgeId = $_GET['id'];
+$knowledge = Knowledge::get($knowledgeId);
+
+if ($_POST) {
+  $pictureCdn = $_POST['cdn'];
+  $title = $_POST['title'];
+
+  if (Knowledge::edit($knowledgeId, $title, $pictureCdn)) {
+    header('Location: knowledge.php');
+  } else {
+  }
+}
+
 
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -20,18 +32,37 @@ $knowledges = Knowledge::getAll();
 <head>
   <meta charset="UTF-8" />
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport" />
-  <title>Manajemen Knowledge &mdash; LaJoie</title>
+  <title><?= $knowledge['name'] ?> &mdash; LaJoie</title>
 
   <!-- General CSS Files -->
   <link rel="stylesheet" href="assets/modules/bootstrap/css/bootstrap.min.css" />
   <link rel="stylesheet" href="assets/modules/fontawesome/css/all.min.css" />
 
   <!-- CSS Libraries -->
+  <link rel="stylesheet" href="assets/modules/summernote/summernote-bs4.css" />
 
   <!-- Template CSS -->
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="assets/css/components.css" />
 
+  <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
+
+  <style>
+    .uploadcare--widget__button.uploadcare--widget__button_type_open {
+      background-color: #678dbc;
+    }
+  </style>
+  <script>
+    UPLOADCARE_LOCALE_TRANSLATIONS = {
+      buttons: {
+        choose: {
+          files: {
+            one: 'Choose a picture'
+          }
+        }
+      }
+    }
+  </script>
 </head>
 
 <body>
@@ -109,35 +140,49 @@ $knowledges = Knowledge::getAll();
           <div class="section-header">
             <h1>Manajemen Knowledge</h1>
             <div class="section-header-breadcrumb">
-              <div class="breadcrumb-item active">
-                <a href="#">Manajemen Knowledge</a>
+              <div class="breadcrumb-item">
+                <a href="knowledge.php">Manajemen Knowledge</a>
               </div>
+
+              <div class="breadcrumb-item active"><?= $knowledge['name']?></div>
             </div>
           </div>
 
-          <div class="row">
+          <div class="section-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Edit <?= $knowledge['name'] ?></h4>
+                  </div>
+                  <div class="card-body">
+                    <form method="post">
+                      <div class="form-group row mb-4">
+                        <label class="col-form-label text-md-right col-12 col-md-3 col-lg-3">Title</label>
+                        <div class="col-sm-12 col-md-7">
+                          <input type="text" name="title" value="<?= $knowledge['name'] ?>" class="form-control" />
+                        </div>
+                      </div>
 
-            <!-- Knowledges data -->
-            <?php foreach ($knowledges as $key => $knowledge) { ?>
-              <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                <article class="article article-style-b">
-                  <div class="article-header">
-                    <div class="article-image" data-background="<?= StringUtil::getImage($knowledge['picture']) ?>"></div>
+                      <div class="form-group row mb-4">
+                        <label class="col-form-label text-md-right col-12 col-md-3 col-lg-3">Picture</label>
+                        <div class="col-sm-12 col-md-7">
+                          <input type="hidden" value="<?= $knowledge['picture'] ?>" role="uploadcare-uploader" data-public-key="574887dd15eae2ede6e6" data-tabs="file facebook gdrive instagram" />
+                        </div>
+                      </div>
+
+                      <div class="form-group row mb-4">
+                        <label class="col-form-label text-md-right col-12 col-md-3 col-lg-3"></label>
+                        <div class="col-sm-12 col-md-7">
+                          <button type="submit" class="btn btn-primary">Update</button>
+                          <input type="hidden" name="cdn" id="cdn" value="">
+                        </div>
+                      </div>
+                    </form>
                   </div>
-                  <div class="article-details">
-                    <div class="article-title" style="display: flex; align-items: center">
-                      <h2 style="display: inline; margin-right: auto;"><a href="knowledgeList.php?category_id=<?= $knowledge['id'] ?>&name=<?= StringUtil::encodeUrl($knowledge['name']) ?>"><?= $knowledge['name'] ?></a></h2>
-                      <a href="knowledgeCategoryEdit.php?id=<?=$knowledge['id']?>" class="float-right"><i class="fas fa-edit"></i></a>
-                      <a href="test.php" class="float-right"><i class="fas fa-trash"></i></a>
-                    </div>
-                  </div>
-                </article>
+                </div>
               </div>
-            <?php }  ?>
-            <!--  -->
-          </div>
-          <div class="footer text-right">
-            <a href="addKnowledgeCategory.php" class="btn btn-icon icon-left btn-primary"><i class="fas fa-plus"></i>Add</a>
+            </div>
           </div>
         </section>
       </div>
@@ -161,12 +206,24 @@ $knowledges = Knowledge::getAll();
   <script src="assets/js/stisla.js"></script>
 
   <!-- JS Libraies -->
+  <script src="assets/modules/summernote/summernote-bs4.js"></script>
 
   <!-- Page Specific JS File -->
 
   <!-- Template JS File -->
   <script src="assets/js/scripts.js"></script>
   <script src="assets/js/custom.js"></script>
+
+
+  <script>
+    // get a widget reference
+    const widget = uploadcare.SingleWidget("[role=uploadcare-uploader]");
+
+    // listen to the "upload completed" event
+    widget.onUploadComplete(fileInfo => {
+      document.getElementById("cdn").setAttribute('value', fileInfo.uuid);
+    });
+  </script>
 </body>
 
 </html>
